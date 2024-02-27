@@ -3,6 +3,7 @@ module github.com/fergkz/test-haytek-service-go
 go 1.21
 
 require (
+	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/gorilla/mux v1.8.1
 	github.com/rs/cors v1.10.1
 	github.com/spf13/viper v1.18.2

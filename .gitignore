@@ -1,3 +1,5 @@
 tmp/*
 config.yml
 config-test.yml
+test-results/*
+!test-results/README.md
