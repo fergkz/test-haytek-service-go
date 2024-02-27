@@ -1,0 +1,64 @@
+{
+    // "compile-hero.typescript-output-directory": ".",
+    // "compile-hero.ignore": "*.ts",
+    "compile-hero.ignore": "{**/*.dio,**/*.txt}",
+    "compile-hero.generate-minified-javascript": true,
+    "compile-hero.generate-minified-css": true,
+    "editor.detectIndentation": false,
+    "editor.insertSpaces": true,
+    "editor.tabSize": 4,
+    "[go]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4
+    },
+    "runOnSave.statusMessageTimeout": 3000,
+    "runOnSave.commands": [
+        {
+            "match": ".go",
+            "command": "echo '---------------------'",
+            "runIn": "terminal",
+        },
+        {
+            "match": ".go",
+            "command": "Stop-Process -Name go -Force -ErrorAction SilentlyContinue",
+            "runIn": "terminal",
+        },
+        {
+            "match": ".go",
+            "command": "Stop-Process -Name test-haytek-service-go -Force -ErrorAction SilentlyContinue",
+            "runIn": "terminal",
+        },
+        // Configura o ambiente local para windows
+        {
+            "match": ".go",
+            "command": "$Env:GOOS = 'windows'; $Env:GOARCH = 'amd64';",
+            "runIn": "terminal",
+        },
+        // Roda o servidor local
+        {
+            "match": ".go",
+            "command": "Start-Process -FilePath 'go' -ArgumentList 'run', '.' -NoNewWindow",
+            // "command": "go run .",
+            "runIn": "terminal",
+        },
+        // Aguarda algum tempo para o servidor subir antes de rodar os testes
+        {
+            "match": ".go",
+            "command": "sleep 1",
+            "runIn": "terminal"
+        },
+        // Roda os testes
+        {
+            "match": ".*\\.(go)$",
+            "command": "Start-Process -FilePath 'go' -ArgumentList 'test', '.', '-v', '-count=1' -NoNewWindow",
+            "runIn": "terminal"
+        }
+    ],
+    "compile-hero.disable-compile-files-on-did-save-code": false,
+    "liveServer.settings.ignoreFiles": [
+        ".vscode/**",
+        "**/*.scss",
+        "**/*.sass",
+        "**/*.ts"
+    ],
+}
