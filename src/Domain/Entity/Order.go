@@ -10,7 +10,7 @@ type Order struct {
 	quantity  int
 }
 
-func NewOrders(
+func NewOrder(
 	id string,
 	addressId string,
 	carrierId string,
