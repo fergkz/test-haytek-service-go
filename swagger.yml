@@ -1,0 +1,99 @@
+swagger: "2.0"
+info:
+  version: 1.0.0
+  title: Delivery Package Service
+produces:
+  - application/json
+consumes:
+  - application/json
+schemes:
+  - http
+  - https
+paths:
+  /v1/delivery-pack:
+    get:
+      summary: Retorna a lista de separação para expedição agrupado por transportadora, destino e data de entrega
+      responses:
+        "200":
+          description: Sucesso
+          schema:
+            type: array
+            minItems: 1
+            items:
+              type: object
+              required:
+                - deliveryDate
+                - carrier
+                - address
+                - boxes
+              properties:
+                deliveryDate:
+                  type: string
+                  example: "2021-08-01"
+                carrier:
+                  type: object
+                  required:
+                    - id
+                    - name
+                  properties:
+                    id:
+                      type: string
+                      example: "ffff-fffff-ffffff-fffff"
+                    name:
+                      type: string
+                      example: "Correios"
+                address:
+                  type: object
+                  required:
+                    - street
+                    - complement
+                    - neighborhood
+                    - zipCode
+                    - city
+                    - state
+                  properties:
+                    street:
+                      type: string
+                      example: "Rua das Flores"
+                    complement:
+                      type: string
+                      example: "Apto 101"
+                    neighborhood:
+                      type: string
+                      example: "Centro"
+                    zipCode:
+                      type: string
+                      example: "12345-678"
+                    city:
+                      type: string
+                      example: "São Paulo"
+                    state:
+                      type: string
+                      example: "SP"
+                boxes:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    required:
+                      - boxType
+                      - itemsQuantity
+                      - orders
+                    properties:
+                      boxType:
+                        type: string
+                        example: "P"
+                      itemsQuantity:
+                        type: integer
+                        example: 12
+                      orders:
+                        type: array
+                        minItems: 1
+                        items:
+                          type: object
+                          required:
+                            - id
+                          properties:
+                            id:
+                              type: string
+                              example: "ffff-fffff-ffffff-fffff"
