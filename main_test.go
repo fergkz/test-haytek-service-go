@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -10,6 +11,9 @@ import (
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
+
+	"github.com/go-openapi/loads"
+	"github.com/xeipuuv/gojsonschema"
 
 	ApplicationContractService "github.com/fergkz/test-haytek-service-go/src/Application/Contract/Service"
 	ApplicationUsecase "github.com/fergkz/test-haytek-service-go/src/Application/Usecase"
@@ -103,7 +107,63 @@ func TestGroupByDelivery(t *testing.T) {
 		t.Log("Testing Group By Delivery API...")
 
 		testAPICall(t, "GET", "http://localhost:"+config.Server.Port+"/v1/delivery-pack", "", nil, 200, func(payload string) bool {
-			return len(payload) > 0
+
+			if len(payload) <= 0 {
+				t.Fatalf("\x1b[31mError: No payload found\x1b[0m")
+				return false
+			}
+
+			if len(payload) <= 20 {
+				t.Fatalf("\x1b[31mError: Payload too short\x1b[0m")
+				return false
+			}
+
+			// Check if is json
+			if !json.Valid([]byte(payload)) {
+				t.Fatalf("\x1b[31mError: Payload is not a valid JSON\x1b[0m")
+				return false
+			}
+
+			// Check swagger schema
+			swaggerSpec, err := loads.Spec("swagger.yml")
+			if err != nil {
+				t.Fatalf("\x1b[31mError: Erro ao carregar o arquivo swagger.yml: %s\x1b[0m", err)
+			}
+
+			operation, ok := swaggerSpec.Analyzer.OperationFor("get", "/v1/delivery-pack")
+			if !ok {
+				t.Fatalf("\x1b[31mError: Rota não encontrada no Swagger: %s\x1b[0m", err)
+			}
+
+			responseSchema := operation.Responses.StatusCodeResponses[200].Schema
+
+			if responseSchema == nil {
+				t.Fatalf("\x1b[31mError: Esquema não definido para a resposta 200\x1b[0m")
+			}
+
+			swaggerSchemaStr, _ := responseSchema.MarshalJSON()
+
+			documentLoader := gojsonschema.NewStringLoader(payload)
+			schemaLoader := gojsonschema.NewStringLoader(string(swaggerSchemaStr))
+
+			result, err := gojsonschema.Validate(schemaLoader, documentLoader)
+			if err != nil {
+				t.Fatalf("\x1b[31mError: %s\x1b[0m", err)
+			}
+
+			if result.Valid() {
+				t.Logf("\x1b[32mSuccess: The JSON string is valid against the Swagger schema.\x1b[0m")
+			} else {
+				t.Logf("\x1b[31mError: The JSON string is not valid against the Swagger schema.\x1b[0m")
+				for _, desc := range result.Errors() {
+					t.Logf("\x1b[31m - %s \x1b[0m", desc)
+				}
+				t.Fatalf("")
+			}
+
+			t.Log("\x1b[32mSuccess: O retorno da API está de acordo com o swagger.yml!\x1b[0m")
+
+			return true
 		})
 
 		t.Log("\x1b[32mGroup By Delivery API Test Passed!\x1b[0m")
