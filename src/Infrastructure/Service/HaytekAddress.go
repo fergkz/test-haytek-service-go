@@ -65,6 +65,10 @@ func (service *haytekAddress) ListAllAddresses() ([]DomainEntity.Address, error)
 			daoRow.Id,
 			daoRow.State,
 			*DomainEntity.NewAddressZipCode(daoRow.ZipCode),
+			daoRow.Street,
+			daoRow.Complement,
+			daoRow.Neighborhood,
+			daoRow.City,
 		)
 
 		addresses = append(addresses, address)
