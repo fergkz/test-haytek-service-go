@@ -2,12 +2,14 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
 	"time"
 
 	InfrastructureController "github.com/fergkz/test-haytek-service-go/src/Infrastructure/Controller"
+	InfrastructureService "github.com/fergkz/test-haytek-service-go/src/Infrastructure/Service"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 )
@@ -23,6 +25,11 @@ func main() {
 
 	config := new(Config)
 	config.Load("config.yml")
+
+	serviceAddress := InfrastructureService.NewHaytekAddress()
+	serviceBox := InfrastructureService.NewHaytekBox()
+	serviceCarrier := InfrastructureService.NewHaytekCarrier()
+	serviceOrder := InfrastructureService.NewHaytekOrder()
 
 	router := mux.NewRouter()
 	router.StrictSlash(true)
@@ -59,13 +66,17 @@ func main() {
 
 	// Rota simplificada para verificar saúde do serviço.
 	router.HandleFunc("/alive", func(w http.ResponseWriter, r *http.Request) {
-		log.Println("Alive")
-		fmt.Fprintf(w, "OK")
+		io.WriteString(w, string("ALIVE"))
 	})
 
-	ctrlTest := InfrastructureController.NewTest("TEST")
+	controllerDeliveryPack := InfrastructureController.NewDeliveryPack(
+		serviceAddress,
+		serviceBox,
+		serviceCarrier,
+		serviceOrder,
+	)
 
-	apiRouter.HandleFunc("/test", ctrlTest.Get).Methods("GET")
+	apiRouter.HandleFunc("/delivery-pack", controllerDeliveryPack.Get).Methods("GET")
 
 	log.Printf("Server started at port %s\n", config.Server.Port)
 
