@@ -7,6 +7,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 
 	ApplicationContractService "github.com/fergkz/test-haytek-service-go/src/Application/Contract/Service"
+	ApplicationUsecase "github.com/fergkz/test-haytek-service-go/src/Application/Usecase"
 	InfrastructureService "github.com/fergkz/test-haytek-service-go/src/Infrastructure/Service"
 )
 
@@ -63,4 +64,31 @@ func TestExternalServices(t *testing.T) {
 		saveToFile("TestExternalServices-Orders.log", orderRows)
 		t.Log("\x1b[32mOrder Service Test Passed!\x1b[0m")
 	})
+}
+
+func TestGroupByDelivery(t *testing.T) {
+
+	t.Run("Group By Delivery", func(t *testing.T) {
+		t.Log("Testing Group By Delivery...")
+
+		usecase := ApplicationUsecase.NewGroupByDelivery(
+			InfrastructureService.NewHaytekAddress(),
+			InfrastructureService.NewHaytekBox(),
+			InfrastructureService.NewHaytekCarrier(),
+			InfrastructureService.NewHaytekOrder(),
+		)
+
+		packs, err := usecase.Run()
+		if err != nil {
+			t.Fatalf("\x1b[31mError:\x1b[0m %v", err)
+		}
+
+		if len(packs) == 0 {
+			t.Fatalf("\x1b[31mError:\x1b[0m No packages found")
+		}
+
+		t.Log("\x1b[32mGroup By Delivery Test Passed!\x1b[0m")
+
+	})
+
 }
