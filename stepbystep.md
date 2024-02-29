@@ -13,3 +13,5 @@
 > go mod tidy
 > go run .
 
+3. Build application (windows)
+> go build -o HaytekService.exe .

@@ -52,6 +52,12 @@
             "match": ".*\\.(go)$",
             "command": "Start-Process -FilePath 'go' -ArgumentList 'test', '.', '-v', '-count=1' -NoNewWindow",
             "runIn": "terminal"
+        },
+        // Builda a aplicação
+        {
+            "match": ".*\\.(go)$",
+            "command": "Start-Process -FilePath 'go' -ArgumentList 'build', '-o', 'HaytekService.exe', '.' -NoNewWindow",
+            "runIn": "terminal"
         }
     ],
     "compile-hero.disable-compile-files-on-did-save-code": false,
