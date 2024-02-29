@@ -5,6 +5,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"os"
 	"time"
 
@@ -44,7 +46,7 @@ func main() {
 		AllowCredentials: true,
 		AllowedHeaders:   []string{"*"},
 		AllowedOrigins:   []string{"*"},
-		AllowedMethods:   []string{"*"},
+		AllowedMethods:   []string{"GET", "HEAD", "POST", "PUT", "OPTIONS"},
 	})
 	handler := c.Handler(router)
 
@@ -52,7 +54,7 @@ func main() {
 	apiRouter.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Access-Control-Allow-Origin", "*")
-			w.Header().Set("Access-Control-Allow-Methods", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, POST, PUT, OPTIONS, DELETE")
 			w.Header().Set("Access-Control-Expose-Headers", "*")
 
 			if r.Method == "OPTIONS" {
@@ -78,6 +80,9 @@ func main() {
 
 	apiRouter.HandleFunc("/delivery-pack", controllerDeliveryPack.Get).Methods("GET")
 
+	// Proxi reverso para acesso local das APIs
+	router.PathPrefix("/api/v1/test-haytek-api/").Handler(http.HandlerFunc(reverseProxy("https://stg-api.haytek.com.br")))
+
 	log.Printf("Server started at port %s\n", config.Server.Port)
 
 	http.ListenAndServe("127.0.0.1:"+config.Server.Port, handler)
@@ -88,4 +93,27 @@ func main() {
 		WriteTimeout: 120 * time.Second,                 // Tempo limite de escrita.
 	}
 	log.Fatal(server.ListenAndServe())
+}
+
+func reverseProxy(targetURL string) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Crie o URL de destino para onde a requisição será encaminhada
+		target, err := url.Parse(targetURL)
+		if err != nil {
+			http.Error(w, "Erro ao analisar o URL de destino", http.StatusInternalServerError)
+			return
+		}
+
+		// Crie um proxy reverso
+		proxy := httputil.NewSingleHostReverseProxy(target)
+
+		// Atualize o cabeçalho Host para o host de destino
+		r.Host = target.Host
+
+		// Adicione logs para debug
+		fmt.Printf("Proxying request to %s for path %s\n", targetURL, r.URL.Path)
+
+		// Executar o proxy reverso
+		proxy.ServeHTTP(w, r)
+	}
 }
