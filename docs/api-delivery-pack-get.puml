@@ -1,0 +1,63 @@
+@startuml "Separação de Pedidos em Lotes"
+
+skinparam maxMessageSize 220
+autonumber
+!pragma teoz true
+scale 2.0
+
+' skinparam actor {
+'     ' BackgroundColor DeepSkyBlue
+'     BorderColor Black
+'     ' FontName Courier
+' }
+
+skinparam participant {
+    BackgroundColor LightBlue
+'     BorderColor Black
+'     FontName Courier
+}
+
+actor "Client" as Client
+participant "=Endpoint\nServidor" as Endpoint
+
+box "Sistema" #LightGrey
+    participant "=Main.go" as Main
+
+    box "Infrastructure" #LightYellow
+        participant "=Controller" as Controller
+        participant "=Dados Externos" as ExernalService
+    endbox
+
+    box "Application" #LightPink
+        participant "=Usecase" as Usecase
+    endbox
+
+    box "Domain" #LightGreen
+        participant "=Entity" as Entity
+    endbox
+endbox
+
+participant "=HayteckAPI" as HayteckAPI
+
+Client -> Endpoint: Solicita dados ao endpoint
+Endpoint -> Main: Interpreta o tipo de solicitação
+Main -> Main: Instancia os serviços de acordo com o ambiente
+Main -> Controller: Direciona para a controller correspondente pasando os serviços instanciados
+Controller <--> Entity: Busca a estrutura de entidades necessária
+Controller -> Controller: Normaliza os dados entre Payload e Entidades
+Controller -> Usecase: Efetua chamada de caso de uso que fará todo o calculo necessário
+Usecase <--> Entity: Busca a estrutura de entidades necessária
+Usecase -> ExernalService: Solicita os dados necessários para o serviço externo
+ExernalService <--> Entity: Busca a estrutura de entidades necessária
+ExernalService -> HayteckAPI: No caso atual, buscamos os dados mocados dos serviços Haytek
+HayteckAPI -> ExernalService: Retorna os dados mocados
+ExernalService -> Usecase: Retorna os dados normalizado de acordo com as entidades e interfaces
+Usecase -> Usecase: Realiza a separação dos pedidos encontrados\n(toda a lógica de negócio)
+Usecase -> Usecase: Normaliza os dados para o formato de resposta
+Usecase -> Controller: Retorna os dados normalizados a nível de entidade
+Controller -> Controller: Normaliza os dados de entidades para o payload configurado
+Controller -> Main: Retorna o payload e status para a requisição
+Main -> Endpoint: Externa o payload e status para o endpoint/servidor
+Endpoint -> Client: Retorna o payload e status para o cliente
+
+@enduml

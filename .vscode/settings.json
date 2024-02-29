@@ -53,12 +53,23 @@
             "command": "Start-Process -FilePath 'go' -ArgumentList 'test', '.', '-v', '-count=1' -NoNewWindow",
             "runIn": "terminal"
         },
-        // Builda a aplicação
+        // Builda a aplicação Para Windows
         {
             "match": ".*\\.(go)$",
             "command": "Start-Process -FilePath 'go' -ArgumentList 'build', '-o', 'HaytekService.exe', '.' -NoNewWindow",
             "runIn": "terminal"
-        }
+        },
+        // Configura o ambiente local para Linux
+        {
+            "match": ".go",
+            "command": "$Env:GOOS = 'linux'; $Env:GOARCH = 'amd64';",
+            "runIn": "terminal",
+        },
+        {
+            "match": ".*\\.(go)$",
+            "command": "Start-Process -FilePath 'go' -ArgumentList 'build', '-o', 'HaytekService', '.' -NoNewWindow",
+            "runIn": "terminal"
+        },
     ],
     "compile-hero.disable-compile-files-on-did-save-code": false,
     "liveServer.settings.ignoreFiles": [
