@@ -49,13 +49,13 @@
         },
         // Roda os testes
         {
-            "match": ".*\\.(go)$",
+            "match": ".go",
             "command": "Start-Process -FilePath 'go' -ArgumentList 'test', '.', '-v', '-count=1' -NoNewWindow",
             "runIn": "terminal"
         },
         // Builda a aplicação Para Windows
         {
-            "match": ".*\\.(go)$",
+            "match": ".go",
             "command": "Start-Process -FilePath 'go' -ArgumentList 'build', '-o', 'HaytekService.exe', '.' -NoNewWindow",
             "runIn": "terminal"
         },
@@ -66,7 +66,7 @@
             "runIn": "terminal",
         },
         {
-            "match": ".*\\.(go)$",
+            "match": ".go",
             "command": "Start-Process -FilePath 'go' -ArgumentList 'build', '-o', 'HaytekService', '.' -NoNewWindow",
             "runIn": "terminal"
         },

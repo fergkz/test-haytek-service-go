@@ -1,4 +1,8 @@
+
 # Separação de pedidos em lotes - API
+
+![GitHub repo size](https://img.shields.io/github/repo-size/fergkz/test-haytek-service-go?style=for-the-badge)
+![GitHub language count](https://img.shields.io/github/languages/count/fergkz/test-haytek-service-go?style=for-the-badge)
 
 ![](https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white)
 ![](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=Swagger&logoColor=white)
@@ -145,19 +149,40 @@ Diagrama de sequência do fluxo de geração de lote
 
 
 #### Regras Funcionais
-- [x] Pedidos enviados dentro de uma mesma data para um mesmo endereço devem ser agrupados em entregas.
-- [x] Uma mesma entrega pode conter mais de uma caixa.
-- [x] Os pedidos só podem ser agrupados, se forem enviados pela mesma transportadora
-- [x] Cada transportadora tem um horário de corte. Pedidos realizados antes do horário de corte, são enviados no mesmo dia.
-- [x] Cada transportadora tem um horário de corte. Pedidos realizados após o horário de corte, são enviados no dia seguinte.
-- [x] As entregas devem ser agrupados no menor numero de caixas possível.
-- [x] Usar sempre a menor caixa disponível.
-- [ ] A Soma da quantidade máxima de itens das caixas de uma mesma entrega deve ser a menor possível.
-- [x] O mesmo pedido pode ser quebrado em mais de uma caixa, se preciso
+- R1. Pedidos enviados dentro de uma mesma data para um mesmo endereço devem ser agrupados em entregas.
+- R2. Uma mesma entrega pode conter mais de uma caixa.
+- R3. Os pedidos só podem ser agrupados, se forem enviados pela mesma transportadora
+- R4. Cada transportadora tem um horário de corte. Pedidos realizados antes do horário de corte, são enviados no mesmo dia.
+- R5. Cada transportadora tem um horário de corte. Pedidos realizados após o horário de corte, são enviados no dia seguinte.
+- R6. As entregas devem ser agrupados no menor número de caixas possível.
+- R7. Usar sempre a menor caixa disponível.
+    - R7.1. Pode conflitar com a regra R6.
+
+        Exemplo:
+        > Caixa P = 5 itens, Caixa M = 10 itens, Caixa G = 30 itens.<br/>
+        > Separação de 11 itens.
+        > 
+        > Pela regra R6 devemos utilizar a caixa G, pois gera uma menor quantidade de caixas, então, não podemos utilizar a menor caixa disponível pois necessitaria de 2 caixa (P+M).
+
+
+- R8. A Soma da quantidade máxima de itens das caixas de uma mesma entrega deve ser a menor possível.
+
+    - R8.1. Pode conflitar com a regra R6.
+
+        Exemplo:
+        > Caixa P = 5 itens, Caixa M = 10 itens, Caixa G = 30 itens.<br/>
+        > Separação de 11 itens.
+        > 
+        > Pela regra R6 devemos utilizar a caixa G, pois gera uma menor quantidade de caixas, mas gera um volume máximo total de itens = 30.<br/>
+        > Para obter a menor soma da capacidade das caixas precisaríamos de uma caixa M e uma P, somando um total de 15 em capacidade.
+        > 
+        > Então utilizando duas caixas (P+M = 15) temos uma soma de capacidade menor que utilizando apenas uma caixa (G = 30), porém, como a R6 precede a esta, devemos considerar primeiro a R6.
+
+- R9. O mesmo pedido pode ser quebrado em mais de uma caixa, se preciso
 
 #### Requisitos Obrigatórios
 
-- [ ] Documentação de como configurar o ambiente e rodar a aplicação no computador do avaliador
+- [x] Documentação de como configurar o ambiente e rodar a aplicação no computador do avaliador
 - [x] Boas práticas de programação
 - [x] Código fácil de entender e manter
 
@@ -178,7 +203,7 @@ Diagrama de sequência do fluxo de geração de lote
 #### Observações
 - Não se fez necessário a utilização de banco de dados
 
-#### Próximos Passos (versão 1.1)
+#### Próximos Passos (versão 1.1+)
 
 - [ ] Consolidar dados externos em banco de dados local
 - [ ] Adicionar cache nas requisições externas
